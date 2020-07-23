@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Header from '../../components/Header'
-import Table from '../../features/table'
+import Milestone from '../../features/table/Milestone'
 
 import Backdrop from '../../components/Backdrop'
 
@@ -9,7 +9,8 @@ function App() {
         <div className="App">
             <Header />
             <main>
-                <Table isBigDataRequired={true} />
+                <Milestone />
+                {/* <Table isBigDataRequired={true} /> */}
             </main>
             <Backdrop />
         </div>

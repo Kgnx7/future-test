@@ -7,6 +7,7 @@ export const tableSlice = createSlice({
         loading: false,
         data: [],
         error: null,
+        isBigDataRequired: null,
     },
     reducers: {
         getDataStart: (state) => {
@@ -20,6 +21,9 @@ export const tableSlice = createSlice({
             state.loading = false
             state.data = payload
         },
+        setIsBigDataRequeired: (state, { payload }) => {
+            state.isBigDataRequired = payload
+        },
         resetData: (state) => {
             state.data = []
         },
@@ -31,7 +35,12 @@ export const {
     getDataFailure,
     getDataSuccess,
     resetData,
+    setIsBigDataRequeired,
 } = tableSlice.actions
+
+export const changeRequirement = (isBigDataRequired) => (dispatch) => {
+    dispatch(setIsBigDataRequeired(isBigDataRequired))
+}
 
 export const getData = (isBigDataRequired) => async (dispatch) => {
     try {

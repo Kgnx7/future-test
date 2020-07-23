@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useSelector, useDispatch } from 'react-redux'
 
-import { getData } from './tableSlice'
+import { getData, changeRequirement } from './tableSlice'
 
 import clsx from 'clsx'
 import { lighten, makeStyles } from '@material-ui/core/styles'
@@ -17,6 +17,7 @@ import TableRow from '@material-ui/core/TableRow'
 import TableSortLabel from '@material-ui/core/TableSortLabel'
 import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
+import Link from '@material-ui/core/Link'
 import Paper from '@material-ui/core/Paper'
 import IconButton from '@material-ui/core/IconButton'
 import Tooltip from '@material-ui/core/Tooltip'
@@ -183,10 +184,6 @@ export default function EnhancedTable({ isBigDataRequired }) {
         dispatch(getData(isBigDataRequired))
     }, [])
 
-    useEffect(() => {
-        // console.log(_rows)
-    })
-
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc'
         setOrder(isAsc ? 'desc' : 'asc')
@@ -201,11 +198,19 @@ export default function EnhancedTable({ isBigDataRequired }) {
         setPage(newPage)
     }
 
+    const handleBackClick = (event) => {
+        event.preventDefault()
+        dispatch(changeRequirement(null))
+    }
+
     const emptyRows =
         rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage)
 
     return (
         <Container className={classes.root}>
+            <Typography>
+                <Link onClick={handleBackClick}>{'<- Я передумал 🙄'}</Link>
+            </Typography>
             <Paper className={classes.paper}>
                 <EnhancedTableToolbar />
                 <TableContainer>

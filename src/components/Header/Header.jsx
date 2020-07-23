@@ -9,7 +9,7 @@ const useStyles = makeStyles((theme) => ({
     },
     accentTitle: {
         textDecoration: 'none',
-        color: '#0e43fe',
+        color: theme.palette.primary.main,
         fontWeight: '500',
         '&:hover': {
             textDecoration: 'underline',
