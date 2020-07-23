@@ -1,6 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { apiGetBigData, apiGetSmallData } from '../../api/dataAPI'
 
+import { dataSchema } from './dataSchema'
+
 export const tableSlice = createSlice({
     name: 'table',
     initialState: {
@@ -49,6 +51,16 @@ export const getData = (isBigDataRequired) => async (dispatch) => {
         const response = isBigDataRequired
             ? await apiGetBigData()
             : await apiGetSmallData()
+
+        if (!Array.isArray(response.data)) {
+            throw new Error(400)
+        }
+
+        for (let row of response.data) {
+            if (!(await dataSchema.isValid(row))) {
+                throw new Error(400)
+            }
+        }
 
         dispatch(getDataSuccess(response.data))
     } catch (error) {

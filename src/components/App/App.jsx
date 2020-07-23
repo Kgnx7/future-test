@@ -10,7 +10,6 @@ function App() {
             <Header />
             <main>
                 <Milestone />
-                {/* <Table isBigDataRequired={true} /> */}
             </main>
             <Backdrop />
         </div>
