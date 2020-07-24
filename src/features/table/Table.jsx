@@ -24,6 +24,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 import IconButton from '@material-ui/core/IconButton'
 import SearchIcon from '@material-ui/icons/Search'
 import CreateIcon from '@material-ui/icons/Create'
+
 import debounce from '../../utils/debounce'
 
 import ItemDetails from './ItemDetails'
@@ -289,7 +290,11 @@ export default function EnhancedTable({ isBigDataRequired }) {
             <Typography component="span">
                 <Link onClick={handleBackClick}>{'<- Я передумал 🙄'}</Link>
             </Typography>
-            <Paper component="section" className={classes.paper}>
+            <Paper
+                component="section"
+                className={classes.paper}
+                data-testid="table"
+            >
                 <EnhancedTableToolbar
                     onFilterChange={handleFilterChange}
                     onCreate={toggleCreateItemDialog}
@@ -321,6 +326,7 @@ export default function EnhancedTable({ isBigDataRequired }) {
                                 .map((row) => {
                                     return (
                                         <TableRow
+                                            data-testid="tableRow"
                                             hover
                                             onClick={(event) =>
                                                 handleRowClick(event, row)

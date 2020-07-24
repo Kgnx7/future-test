@@ -1,46 +1,109 @@
-// import React from 'react'
-// import { rest } from 'msw'
-// import { setupServer } from 'msw/node'
-// import { render, fireEvent, waitFor, screen } from '@testing-library/react'
-// import '@testing-library/jest-dom/extend-expect'
-// import Fetch from '../fetch'
+import React from 'react'
+import { rest } from 'msw'
+import { Provider } from 'react-redux'
+import { setupServer } from 'msw/node'
+import { render, fireEvent, waitFor, screen } from '@testing-library/react'
+import '@testing-library/jest-dom/extend-expect'
+import Milestone from './Milestone'
+import bigData from '../../../bigData.json'
+import smallData from '../../../smallData.json'
 
-// const server = setupServer(
-//     rest.get('/greeting', (req, res, ctx) => {
-//         return res(ctx.json({ greeting: 'hello there' }))
-//     })
-// )
+import { configureStore } from '@reduxjs/toolkit'
+import tableReducer from './tableSlice'
 
-// beforeAll(() => server.listen())
-// afterEach(() => server.resetHandlers())
-// afterAll(() => server.close())
+const store = configureStore({
+    reducer: {
+        table: tableReducer,
+    },
+})
 
-// test('loads and displays greeting', async () => {
-//     render(<Fetch url="/greeting" />)
+const server = setupServer(
+    rest.get('/Kgnx7/future-test/dev/bigData.json', (req, res, ctx) => {
+        return res(ctx.json(bigData))
+    }),
+    rest.get('/Kgnx7/future-test/dev/smallData.json', (req, res, ctx) => {
+        return res(ctx.json(smallData))
+    })
+)
 
-//     fireEvent.click(screen.getByText('Load Greeting'))
+beforeAll(() => server.listen())
+afterEach(() => server.resetHandlers())
+afterAll(() => server.close())
 
-//     await waitFor(() => screen.getByRole('heading'))
+test('Загрузить немного данных', async () => {
+    render(
+        <Provider store={store}>
+            <Milestone />
+        </Provider>
+    )
 
-//     expect(screen.getByRole('heading')).toHaveTextContent('hello there')
-//     expect(screen.getByRole('button')).toHaveAttribute('disabled')
-// })
+    fireEvent.click(screen.getByText('Небольшой набор данных 😐'))
 
-// test('handlers server error', async () => {
-//     server.use(
-//         rest.get('/greeting', (req, res, ctx) => {
-//             return res(ctx.status(500))
-//         })
-//     )
+    expect(screen.getByTestId('table')).toHaveTextContent(
+        'Таблица с данными 😉'
+    )
 
-//     render(<Fetch url="/greeting" />)
+    await waitFor(() => {
+        screen.getAllByTestId('tableRow').forEach((row) => {
+            expect(row).toBeInTheDocument()
+        })
+    })
 
-//     fireEvent.click(screen.getByText('Load Greeting'))
+    fireEvent.click(screen.getByText('<- Я передумал 🙄'))
+})
 
-//     await waitFor(() => screen.getByRole('alert'))
+test('Загрузить большие данные', async () => {
+    render(
+        <Provider store={store}>
+            <Milestone />
+        </Provider>
+    )
 
-//     expect(screen.getByRole('alert')).toHaveTextContent(
-//         'Oops, failed to fetch!'
-//     )
-//     expect(screen.getByRole('button')).not.toHaveAttribute('disabled')
-// })
+    fireEvent.click(screen.getByText('Большой набор данных 🙀'))
+
+    expect(screen.getByTestId('table')).toHaveTextContent(
+        'Таблица с данными 😉'
+    )
+
+    await waitFor(() => {
+        screen.getAllByTestId('tableRow').forEach((row) => {
+            expect(row).toBeInTheDocument()
+        })
+    })
+
+    fireEvent.click(screen.getByText('<- Я передумал 🙄'))
+})
+
+test('Проверка пагинации', async () => {
+    render(
+        <Provider store={store}>
+            <Milestone />
+        </Provider>
+    )
+
+    fireEvent.click(screen.getByText('Большой набор данных 🙀'))
+
+    expect(screen.getByTestId('table')).toHaveTextContent(
+        'Таблица с данными 😉'
+    )
+
+    await waitFor(() => {
+        screen.getAllByTestId('tableRow').forEach((row) => {
+            expect(row).toBeInTheDocument()
+        })
+    })
+
+    for (let i = 0; i < 100; i++) {
+        fireEvent.click(screen.getByTitle('Next page'))
+        await waitFor(
+            () => {
+                screen.getAllByTestId('tableRow').forEach((row) => {
+                    expect(row).toBeInTheDocument()
+                })
+            }
+            // { timeout: 500 }
+        )
+    }
+
+    fireEvent.click(screen.getByText('<- Я передумал 🙄'))
+})

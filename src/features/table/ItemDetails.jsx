@@ -58,7 +58,3 @@ export default function ItemDetails({ selectedItem }) {
         )
     )
 }
-
-ItemDetails.propTypes = {
-    selectedItem: PropTypes.object.isRequired,
-}
