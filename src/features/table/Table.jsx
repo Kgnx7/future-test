@@ -24,6 +24,8 @@ import Tooltip from '@material-ui/core/Tooltip'
 import SearchIcon from '@material-ui/icons/Search'
 import debounce from '../../utils/debounce'
 
+import ItemDetails from './ItemDetails'
+
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
         return -1
@@ -209,10 +211,11 @@ const EnhancedTableToolbar = ({ onFilterChange }) => {
 const useStyles = makeStyles((theme) => ({
     root: {
         width: '100%',
+        paddingBottom: theme.spacing(3),
     },
     paper: {
         width: '100%',
-        marginBottom: theme.spacing(2),
+        marginBottom: theme.spacing(3),
     },
     table: {
         minWidth: 750,
@@ -226,6 +229,7 @@ export default function EnhancedTable({ isBigDataRequired }) {
     const [filter, setFilter] = useState('')
     const [orderBy, setOrderBy] = useState('id')
     const [page, setPage] = useState(0)
+    const [selectedItem, setSelectedItem] = useState(null)
 
     const rowsPerPage = 10
 
@@ -241,8 +245,8 @@ export default function EnhancedTable({ isBigDataRequired }) {
         setOrderBy(property)
     }
 
-    const handleClick = (event, name) => {
-        alert(name)
+    const handleRowClick = (event, item) => {
+        setSelectedItem(item)
     }
 
     const handleChangePage = (event, newPage) => {
@@ -264,10 +268,10 @@ export default function EnhancedTable({ isBigDataRequired }) {
 
     return (
         <Container className={classes.root}>
-            <Typography>
+            <Typography component="span">
                 <Link onClick={handleBackClick}>{'<- Я передумал 🙄'}</Link>
             </Typography>
-            <Paper className={classes.paper}>
+            <Paper component="section" className={classes.paper}>
                 <EnhancedTableToolbar onFilterChange={handleFilterChange} />
                 <TableContainer>
                     <Table
@@ -298,7 +302,7 @@ export default function EnhancedTable({ isBigDataRequired }) {
                                         <TableRow
                                             hover
                                             onClick={(event) =>
-                                                handleClick(event, row.id)
+                                                handleRowClick(event, row)
                                             }
                                             role="checkbox"
                                             tabIndex={-1}
@@ -347,6 +351,7 @@ export default function EnhancedTable({ isBigDataRequired }) {
                     onChangePage={handleChangePage}
                 />
             </Paper>
+            <ItemDetails selectedItem={selectedItem} />
         </Container>
     )
 }
