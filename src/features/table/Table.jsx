@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useSelector, useDispatch } from 'react-redux'
 
 import { getData, changeRequirement } from './tableSlice'
 
 import clsx from 'clsx'
-import { lighten, makeStyles } from '@material-ui/core/styles'
+import { lighten, fade, makeStyles } from '@material-ui/core/styles'
 import Table from '@material-ui/core/Table'
 import Container from '@material-ui/core/Container'
 import TableBody from '@material-ui/core/TableBody'
@@ -19,9 +19,10 @@ import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import Link from '@material-ui/core/Link'
 import Paper from '@material-ui/core/Paper'
-import IconButton from '@material-ui/core/IconButton'
+import InputBase from '@material-ui/core/InputBase'
 import Tooltip from '@material-ui/core/Tooltip'
-import FilterListIcon from '@material-ui/icons/FilterList'
+import SearchIcon from '@material-ui/icons/Search'
+import debounce from '../../utils/debounce'
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -39,7 +40,10 @@ function getComparator(order, orderBy) {
         : (a, b) => -descendingComparator(a, b, orderBy)
 }
 
-function stableSort(array, comparator) {
+function sortAndFilter(array, filter, comparator) {
+    array = array.filter((el) =>
+        new RegExp(`${filter}`, 'im').test(Object.values(el))
+    )
     const stabilizedThis = array.map((el, index) => [el, index])
     stabilizedThis.sort((a, b) => {
         const order = comparator(a[0], b[0])
@@ -58,7 +62,7 @@ const headCells = [
 ]
 
 function EnhancedTableHead(props) {
-    const { classes, order, orderBy, onRequestSort } = props
+    const { order, orderBy, onRequestSort } = props
 
     const createSortHandler = (property) => (event) => {
         onRequestSort(event, property)
@@ -79,13 +83,6 @@ function EnhancedTableHead(props) {
                             onClick={createSortHandler(headCell.id)}
                         >
                             {headCell.label}
-                            {orderBy === headCell.id ? (
-                                <span className={classes.visuallyHidden}>
-                                    {order === 'desc'
-                                        ? 'sorted descending'
-                                        : 'sorted ascending'}
-                                </span>
-                            ) : null}
                         </TableSortLabel>
                     </TableCell>
                 ))}
@@ -120,10 +117,62 @@ const useToolbarStyles = makeStyles((theme) => ({
     title: {
         flex: '1 1 100%',
     },
+    search: {
+        position: 'relative',
+        borderRadius: theme.shape.borderRadius,
+        backgroundColor: fade(theme.palette.common.white, 0.15),
+        '&:hover': {
+            backgroundColor: fade(theme.palette.common.white, 0.25),
+        },
+        marginRight: theme.spacing(2),
+        marginLeft: 0,
+        width: '100%',
+        [theme.breakpoints.up('sm')]: {
+            marginLeft: theme.spacing(3),
+            width: 'auto',
+        },
+    },
+    searchIcon: {
+        padding: theme.spacing(0, 2),
+        height: '100%',
+        position: 'absolute',
+        pointerEvents: 'none',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    inputRoot: {
+        color: 'inherit',
+    },
+    inputInput: {
+        padding: theme.spacing(1, 1, 1, 0),
+        paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+        transition: theme.transitions.create('width'),
+        width: '100%',
+        [theme.breakpoints.up('md')]: {
+            width: '20ch',
+        },
+    },
 }))
 
-const EnhancedTableToolbar = () => {
+const EnhancedTableToolbar = ({ onFilterChange }) => {
     const classes = useToolbarStyles()
+    const [filterInputValue, setFilterInputValue] = useState('')
+
+    const onFilterChangeDebounced = useRef(debounce(onFilterChange, 500))
+        .current
+
+    useEffect(() => {
+        return () => {
+            onFilterChangeDebounced.clear()
+        }
+    }, [])
+
+    const handleFilterInputChange = (event) => {
+        const value = event.target.value
+        setFilterInputValue(value)
+        onFilterChangeDebounced(value)
+    }
 
     return (
         <Toolbar className={clsx(classes.root)}>
@@ -136,10 +185,22 @@ const EnhancedTableToolbar = () => {
                 Таблица с данными 😉
             </Typography>
 
-            <Tooltip title="Filter list">
-                <IconButton aria-label="filter list">
-                    <FilterListIcon />
-                </IconButton>
+            <Tooltip title="Поиск">
+                <div className={classes.search}>
+                    <div className={classes.searchIcon}>
+                        <SearchIcon />
+                    </div>
+                    <InputBase
+                        value={filterInputValue}
+                        onChange={handleFilterInputChange}
+                        placeholder="Поиск…"
+                        classes={{
+                            root: classes.inputRoot,
+                            input: classes.inputInput,
+                        }}
+                        inputProps={{ 'aria-label': 'поиск' }}
+                    />
+                </div>
             </Tooltip>
         </Toolbar>
     )
@@ -156,29 +217,19 @@ const useStyles = makeStyles((theme) => ({
     table: {
         minWidth: 750,
     },
-    visuallyHidden: {
-        border: 0,
-        clip: 'rect(0 0 0 0)',
-        height: 1,
-        margin: -1,
-        overflow: 'hidden',
-        padding: 0,
-        position: 'absolute',
-        top: 20,
-        width: 1,
-    },
 }))
 
 export default function EnhancedTable({ isBigDataRequired }) {
     const classes = useStyles()
     const dispatch = useDispatch()
-    const [order, setOrder] = React.useState('asc')
-    const [orderBy, setOrderBy] = React.useState('calories')
-    const [page, setPage] = React.useState(0)
-    const [rowsPerPage] = React.useState(10)
+    const [order, setOrder] = useState('asc')
+    const [filter, setFilter] = useState('')
+    const [orderBy, setOrderBy] = useState('id')
+    const [page, setPage] = useState(0)
+
+    const rowsPerPage = 10
 
     const rows = useSelector((state) => state.table.data)
-    // const rows = []
 
     useEffect(() => {
         dispatch(getData(isBigDataRequired))
@@ -203,6 +254,11 @@ export default function EnhancedTable({ isBigDataRequired }) {
         dispatch(changeRequirement(null))
     }
 
+    const handleFilterChange = (filter) => {
+        setFilter(filter)
+        console.log(filter)
+    }
+
     const emptyRows =
         rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage)
 
@@ -212,7 +268,7 @@ export default function EnhancedTable({ isBigDataRequired }) {
                 <Link onClick={handleBackClick}>{'<- Я передумал 🙄'}</Link>
             </Typography>
             <Paper className={classes.paper}>
-                <EnhancedTableToolbar />
+                <EnhancedTableToolbar onFilterChange={handleFilterChange} />
                 <TableContainer>
                     <Table
                         className={classes.table}
@@ -228,7 +284,11 @@ export default function EnhancedTable({ isBigDataRequired }) {
                             rowCount={rows.length}
                         />
                         <TableBody>
-                            {stableSort(rows, getComparator(order, orderBy))
+                            {sortAndFilter(
+                                rows,
+                                filter,
+                                getComparator(order, orderBy)
+                            )
                                 .slice(
                                     page * rowsPerPage,
                                     page * rowsPerPage + rowsPerPage
@@ -242,7 +302,7 @@ export default function EnhancedTable({ isBigDataRequired }) {
                                             }
                                             role="checkbox"
                                             tabIndex={-1}
-                                            key={row.id}
+                                            key={`${row.id}-${row.email}`}
                                         >
                                             <TableCell
                                                 component="th"
