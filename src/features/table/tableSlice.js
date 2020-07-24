@@ -29,6 +29,9 @@ export const tableSlice = createSlice({
         resetData: (state) => {
             state.data = []
         },
+        addItem: (state, { payload }) => {
+            state.data = [...state.data, payload]
+        },
     },
 })
 
@@ -38,10 +41,20 @@ export const {
     getDataSuccess,
     resetData,
     setIsBigDataRequeired,
+    addItem,
 } = tableSlice.actions
 
 export const changeRequirement = (isBigDataRequired) => (dispatch) => {
     dispatch(setIsBigDataRequeired(isBigDataRequired))
+}
+
+export const addNewItem = (newItem) => (dispatch) => {
+    try {
+        dispatch(addItem(newItem))
+    } catch (error) {
+        // TODO: ДОБАВИТЬ функцию обработки ошибок
+        // handleError(error, dispatch)
+    }
 }
 
 export const getData = (isBigDataRequired) => async (dispatch) => {

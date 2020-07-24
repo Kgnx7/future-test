@@ -17,8 +17,10 @@ export default function SimpleBackdrop() {
     const dataLoading = useSelector((state) => state.table.loading)
 
     return (
-        <Backdrop className={classes.backdrop} open={dataLoading}>
-            <CircularProgress color="inherit" />
-        </Backdrop>
+        dataLoading && (
+            <Backdrop className={classes.backdrop} open={dataLoading}>
+                <CircularProgress color="inherit" data-testid="backdrop" />
+            </Backdrop>
+        )
     )
 }

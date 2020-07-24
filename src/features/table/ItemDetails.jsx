@@ -50,11 +50,11 @@ export default function ItemDetails({ selectedItem }) {
                         .join(', ')
                         .trim()}
                 </Typography>
+                <Typography variant="body1">
+                    <Typography variant="caption">Описание: </Typography>
+                    {selectedItem.description}
+                </Typography>
             </Paper>
         )
     )
-}
-
-ItemDetails.propTypes = {
-    selectedItem: PropTypes.object.isRequired,
 }

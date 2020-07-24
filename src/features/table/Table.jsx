@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useSelector, useDispatch } from 'react-redux'
 
-import { getData, changeRequirement } from './tableSlice'
+import { getData, changeRequirement, addNewItem } from './tableSlice'
 
 import clsx from 'clsx'
 import { lighten, fade, makeStyles } from '@material-ui/core/styles'
@@ -21,10 +21,14 @@ import Link from '@material-ui/core/Link'
 import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import Tooltip from '@material-ui/core/Tooltip'
+import IconButton from '@material-ui/core/IconButton'
 import SearchIcon from '@material-ui/icons/Search'
+import CreateIcon from '@material-ui/icons/Create'
+
 import debounce from '../../utils/debounce'
 
 import ItemDetails from './ItemDetails'
+import CreateItemDialog from './CreateItemDialog'
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -157,7 +161,7 @@ const useToolbarStyles = makeStyles((theme) => ({
     },
 }))
 
-const EnhancedTableToolbar = ({ onFilterChange }) => {
+const EnhancedTableToolbar = ({ onFilterChange, onCreate }) => {
     const classes = useToolbarStyles()
     const [filterInputValue, setFilterInputValue] = useState('')
 
@@ -204,6 +208,12 @@ const EnhancedTableToolbar = ({ onFilterChange }) => {
                     />
                 </div>
             </Tooltip>
+
+            <Tooltip title="Добавить">
+                <IconButton aria-label="Добавить элемент" onClick={onCreate}>
+                    <CreateIcon />
+                </IconButton>
+            </Tooltip>
         </Toolbar>
     )
 }
@@ -230,6 +240,7 @@ export default function EnhancedTable({ isBigDataRequired }) {
     const [orderBy, setOrderBy] = useState('id')
     const [page, setPage] = useState(0)
     const [selectedItem, setSelectedItem] = useState(null)
+    const [createItemDialog, setCreateItemDialog] = useState(false)
 
     const rowsPerPage = 10
 
@@ -238,6 +249,14 @@ export default function EnhancedTable({ isBigDataRequired }) {
     useEffect(() => {
         dispatch(getData(isBigDataRequired))
     }, [])
+
+    const toggleCreateItemDialog = () => {
+        setCreateItemDialog(!createItemDialog)
+    }
+
+    const handleCreateItem = (newItem) => {
+        dispatch(addNewItem(newItem))
+    }
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc'
@@ -271,8 +290,15 @@ export default function EnhancedTable({ isBigDataRequired }) {
             <Typography component="span">
                 <Link onClick={handleBackClick}>{'<- Я передумал 🙄'}</Link>
             </Typography>
-            <Paper component="section" className={classes.paper}>
-                <EnhancedTableToolbar onFilterChange={handleFilterChange} />
+            <Paper
+                component="section"
+                className={classes.paper}
+                data-testid="table"
+            >
+                <EnhancedTableToolbar
+                    onFilterChange={handleFilterChange}
+                    onCreate={toggleCreateItemDialog}
+                />
                 <TableContainer>
                     <Table
                         className={classes.table}
@@ -300,6 +326,7 @@ export default function EnhancedTable({ isBigDataRequired }) {
                                 .map((row) => {
                                     return (
                                         <TableRow
+                                            data-testid="tableRow"
                                             hover
                                             onClick={(event) =>
                                                 handleRowClick(event, row)
@@ -352,6 +379,11 @@ export default function EnhancedTable({ isBigDataRequired }) {
                 />
             </Paper>
             <ItemDetails selectedItem={selectedItem} />
+            <CreateItemDialog
+                open={createItemDialog}
+                onClose={toggleCreateItemDialog}
+                onSubmit={handleCreateItem}
+            />
         </Container>
     )
 }
