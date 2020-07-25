@@ -18,11 +18,11 @@ const store = configureStore({
 })
 
 const server = setupServer(
-    rest.get('/Kgnx7/future-test/dev/bigData.json', (req, res, ctx) => {
-        return res(ctx.json(bigData))
-    }),
     rest.get('/Kgnx7/future-test/dev/smallData.json', (req, res, ctx) => {
         return res(ctx.json(smallData))
+    }),
+    rest.get('/Kgnx7/future-test/dev/bigData.json', (req, res, ctx) => {
+        return res(ctx.json(bigData))
     })
 )
 
@@ -44,9 +44,9 @@ test('Загрузить немного данных', async () => {
     )
 
     await waitFor(() => {
-        screen.getAllByTestId('tableRow').forEach((row) => {
-            expect(row).toBeInTheDocument()
-        })
+        const tableRows = screen.getAllByTestId('tableRow')
+
+        expect(tableRows).toHaveLength(10)
     })
 
     fireEvent.click(screen.getByText('<- Я передумал 🙄'))
@@ -66,9 +66,9 @@ test('Загрузить большие данные', async () => {
     )
 
     await waitFor(() => {
-        screen.getAllByTestId('tableRow').forEach((row) => {
-            expect(row).toBeInTheDocument()
-        })
+        const tableRows = screen.getAllByTestId('tableRow')
+
+        expect(tableRows).toHaveLength(10)
     })
 
     fireEvent.click(screen.getByText('<- Я передумал 🙄'))
@@ -88,21 +88,19 @@ test('Проверка пагинации', async () => {
     )
 
     await waitFor(() => {
-        screen.getAllByTestId('tableRow').forEach((row) => {
-            expect(row).toBeInTheDocument()
-        })
+        const tableRows = screen.getAllByTestId('tableRow')
+
+        expect(tableRows).toHaveLength(10)
     })
 
     for (let i = 0; i < 100; i++) {
         fireEvent.click(screen.getByTitle('Next page'))
-        await waitFor(
-            () => {
-                screen.getAllByTestId('tableRow').forEach((row) => {
-                    expect(row).toBeInTheDocument()
-                })
-            }
-            // { timeout: 500 }
-        )
+
+        await waitFor(() => {
+            const tableRows = screen.getAllByTestId('tableRow')
+
+            expect(tableRows).toHaveLength(10)
+        })
     }
 
     fireEvent.click(screen.getByText('<- Я передумал 🙄'))
