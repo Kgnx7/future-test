@@ -1,68 +1,31 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), using the [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/) template.
+# Интернет-агентство [Future](https://future-group.ru) ✌🏻
 
-## Available Scripts
+### [Тестовое задание на позицию frontend разработчика](https://kgnx7.github.io/future-test/)
 
-In the project directory, you can run:
+## Задание
 
-### `npm start`
+Необходимо разработать React-приложение для отображения таблицы с данными. Дополнительным плюсом будет: Финальный билд приложения должен быть запускаться из **Docker контейнера** (хотябы с минимальной конфигурацией)
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Стек
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+1. [React](https://reactjs.org/)
+2. [Redux](https://redux.js.org/)
+3. [Material-UI](https://material-ui.com/)
+4. [Axios](https://github.com/axios/axios)
+5. [Yup](https://github.com/jquense/yup#usage)
+6. [Testing Library](https://testing-library.com)
 
-### `npm test`
+## Обоснования
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1.  **React** - по тз
+2.  **Redux** - популярная библиотека для управления состоянием приложения
+3.  **Material-UI** - популярная библиотека UI компонентов для реакта с стиле _Material Design_
+4.  **Axios** - популярный HTTP клиент c поддержкой EI _(в отличии от Fetch API)_
+5.  **Yup** - простая библиотека для валидации данных в runtime
+6.  **Testing Library** - дефолтный выбор утилиты тестирования при создании приложения через _Create React App_
 
-### `npm run build`
+## Расхождения с ТЗ
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+1. **API**, с которого нужно получать данные не поддерживает HTTPS, что приводит к тому, что при попытке хостить сайт через предоставляющие по дефолку HTTPS сервисы, типа [Netlify](https://www.netlify.com) и [GitHub pages](https://pages.github.com/) не удается получать данные, так как современные браузеры блокируют [Mixed content](https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content). Решить данную проблему можно путем поднятия собственного сервера, но это немного выходит за рамки тестового задания и был выбран более простой путь. Данные с api загружены на github.
+2. **Поиск**. В ТЗ было указано сделать поиск через нажатие на соответвующую кнопку. В парадигме, выбранного мной дизайна, более подходящий вариант это реализация функции _debounce_ (данные загрузятся через определенный интервал, как пользователь напишет запрос)
+3. **Форма добавления данных**, согласно ТЗ должна иметь вид таблицы с редактируемыми полями. В парадигме, выбранного мной дизайна, более подходящий вариант это расположение друг за другом по вертикали инпуты
