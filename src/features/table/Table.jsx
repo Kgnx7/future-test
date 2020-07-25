@@ -48,7 +48,10 @@ function getComparator(order, orderBy) {
 
 function sortAndFilter(array, filter, comparator) {
     array = array.filter((el) =>
-        new RegExp(`${filter}`, 'im').test(Object.values(el))
+        new RegExp(
+            `${filter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`,
+            'im'
+        ).test(Object.values(el))
     )
     const stabilizedThis = array.map((el, index) => [el, index])
     stabilizedThis.sort((a, b) => {
@@ -279,7 +282,6 @@ export default function EnhancedTable({ isBigDataRequired }) {
 
     const handleFilterChange = (filter) => {
         setFilter(filter)
-        console.log(filter)
     }
 
     const emptyRows =
