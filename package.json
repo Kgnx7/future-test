@@ -9,7 +9,7 @@
         "@reduxjs/toolkit": "^1.4.0",
         "@testing-library/jest-dom": "^5.11.1",
         "@testing-library/user-event": "^12.0.13",
-        "axios": "^0.19.2",
+        "axios": "^0.21.1",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",
         "react-redux": "^7.2.0",
